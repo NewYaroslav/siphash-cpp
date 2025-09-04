@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __SIPHASH__HEADER__ONLY__HPP__INCLUDED__
-#define __SIPHASH__HEADER__ONLY__HPP__INCLUDED__
+#ifndef __SIPHASH_HPP_INCLUDED__
+#define __SIPHASH_HPP_INCLUDED__
 
 #include <string>
 #include <cstdint>
@@ -204,4 +204,4 @@ namespace siphash_hpp {
     }
 };
 
-#endif // __SIPHASH__HEADER__ONLY__HPP__INCLUDED__
+#endif // __SIPHASH_HPP_INCLUDED__
