@@ -10,23 +10,27 @@
 #include <type_traits>
 #include <utility>
 
-namespace siphash_hpp {
-
-    template<typename...>
+#if __cplusplus < 201703L
+namespace std {
+    template <class...>
     using void_t = void;
+}
+#endif
+
+namespace siphash_hpp {
 
     template<typename T, typename = void>
     struct has_static_size : std::false_type {};
 
     template<typename T>
-    struct has_static_size<T, void_t<decltype(std::tuple_size<T>::value)>>
+    struct has_static_size<T, std::void_t<decltype(std::tuple_size<T>::value)>>
             : std::true_type {};
 
     template<typename T, typename = void>
     struct has_size_method : std::false_type {};
 
     template<typename T>
-    struct has_size_method<T, void_t<decltype(std::declval<T>().size())>>
+    struct has_size_method<T, std::void_t<decltype(std::declval<T>().size())>>
             : std::true_type {};
 
     template<typename T, bool = has_static_size<T>::value>
