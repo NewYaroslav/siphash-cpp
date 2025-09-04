@@ -11,6 +11,12 @@
 #include <type_traits>
 #include <utility>
 
+#if __cplusplus >= 201703L
+#define SIPHASH_NODISCARD [[nodiscard]]
+#else
+#define SIPHASH_NODISCARD
+#endif
+
 #if __cplusplus < 201703L
 namespace std {
     template <class...>
@@ -280,7 +286,7 @@ namespace siphash_hpp {
             return update(data.data(), data.size());
         }
 
-        const uint64_t digest() noexcept {
+        SIPHASH_NODISCARD const uint64_t digest() noexcept {
             while (index < 7) ++index;
             m |= (input_len << (index * 8));
             digest_block();
