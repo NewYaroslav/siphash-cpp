@@ -82,8 +82,8 @@ namespace siphash_hpp {
     class SipHash {
     private:
 		size_t c, d, index;
-		uint64_t v0, v1, v2, v3, m;
-		uint8_t input_len;
+                uint64_t v0, v1, v2, v3, m;
+                uint64_t input_len;
 
         template<class T>
         static inline const uint8_t* data_ptr(
@@ -282,7 +282,7 @@ namespace siphash_hpp {
 
         const uint64_t digest() noexcept {
             while (index < 7) ++index;
-            m |= ((uint64_t) input_len) << (index * 8);
+            m |= (input_len << (index * 8));
             digest_block();
             v2 ^= 0xff;
             for(size_t i = 0; i < d; ++i){

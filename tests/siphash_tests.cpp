@@ -53,3 +53,12 @@ TEST(SipHash, LongMessageArrayKey) {
         char(0x8A), char(0x8B), char(0x8C), char(0x8D), char(0x8E)};
     EXPECT_EQ(10101490021502548721ULL, siphash_hpp::siphash_2_4(data, key));
 }
+
+TEST(SipHash, MessageLongerThan255Bytes) {
+    char key[16];
+    for (int i = 0; i < 16; ++i) key[i] = static_cast<char>(i);
+    std::string data;
+    data.reserve(300);
+    for (int i = 0; i < 300; ++i) data.push_back(static_cast<char>(i));
+    EXPECT_EQ(5407540081291524153ULL, siphash_hpp::siphash_2_4(data, key));
+}
