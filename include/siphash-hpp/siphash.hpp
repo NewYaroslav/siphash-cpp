@@ -3,6 +3,7 @@
 #define __SIPHASH__HEADER__ONLY__HPP__INCLUDED__
 
 #include <string>
+#include <cstdint>
 
 namespace siphash_hpp {
 
@@ -111,17 +112,43 @@ namespace siphash_hpp {
         };
 
         inline SipHash* update(const char* data, const size_t length) noexcept {
-            for (size_t i = 0; i < length; ++i) {
-                update(data[i]);
+            size_t i = 0;
+
+            // If there is data left in the internal buffer, fill it first
+            if (index) {
+                for (; i < length && index < 8; ++i) {
+                    ++input_len;
+                    m |= (static_cast<uint64_t>(static_cast<uint8_t>(data[i]))
+                          << (index++ * 8));
+                }
+                if (index >= 8) {
+                    digest_block();
+                    index = 0;
+                    m = 0;
+                }
             }
+
+            // Process as many 8-byte blocks as possible
+            while (i + 8 <= length) {
+                input_len += 8;
+                m = read8(data, i);
+                digest_block();
+                i += 8;
+                m = 0;
+            }
+
+            // Process remaining bytes
+            for (; i < length; ++i) {
+                ++input_len;
+                m |= (static_cast<uint64_t>(static_cast<uint8_t>(data[i]))
+                      << (index++ * 8));
+            }
+
             return this;
         }
 
         inline SipHash* update(const std::string &data) noexcept {
-            for (size_t i = 0; i < data.size(); ++i) {
-                update(data[i]);
-            }
-            return this;
+            return update(data.data(), data.size());
         }
 
         const uint64_t digest() noexcept {
