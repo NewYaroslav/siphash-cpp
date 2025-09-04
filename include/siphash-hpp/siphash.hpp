@@ -114,7 +114,9 @@ namespace siphash_hpp {
 
     public:
 
-        SipHash() {};
+        SipHash() noexcept
+            : c(0), d(0), index(0), v0(0), v1(0), v2(0), v3(0), m(0),
+              input_len(0) {}
 
         /** \brief Initialize SipHash
          * SipHash-2-4 for best performance
