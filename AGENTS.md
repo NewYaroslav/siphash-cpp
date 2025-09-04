@@ -13,4 +13,4 @@
 
 ## Tooling
 
-- Run tests before committing changes.
+- Run `./scripts/run_tests.sh` before committing changes and ensure it passes.
