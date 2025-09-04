@@ -5,6 +5,7 @@
 #include <array>
 #include <cassert>
 #include <cstdint>
+#include <cstddef>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -50,14 +51,28 @@ namespace siphash_hpp {
 
     template<typename T>
     struct runtime_size_checker<T, true> {
-        static void check(const T &key) {
+        static void check(const T &key, size_t = 0) {
             assert(key.size() >= 16 && "SipHash key must be at least 16 bytes");
         }
     };
 
     template<typename T>
     struct runtime_size_checker<T, false> {
-        static void check(const T &) {}
+        static void check(const T &, size_t = 0) {}
+    };
+
+    template<>
+    struct runtime_size_checker<const uint8_t*, false> {
+        static void check(const uint8_t *, size_t length) {
+            assert(length >= 16 && "SipHash key must be at least 16 bytes");
+        }
+    };
+
+    template<>
+    struct runtime_size_checker<const char*, false> {
+        static void check(const char *, size_t length) {
+            assert(length >= 16 && "SipHash key must be at least 16 bytes");
+        }
     };
 
     class SipHash {
@@ -120,9 +135,17 @@ namespace siphash_hpp {
          * \param c     Number of rounds per message block
          * \param d     Number of finalization rounds
          */
-        template<class T>
+        template<class T, typename std::enable_if<!std::is_pointer<T>::value, int>::type = 0>
         SipHash(const T &key, const size_t c = 2, const size_t d = 4) {
             init(key, c, d);
+        };
+
+        SipHash(const char *key, size_t length, const size_t c = 2, const size_t d = 4) {
+            init(key, length, c, d);
+        };
+
+        SipHash(const uint8_t *key, size_t length, const size_t c = 2, const size_t d = 4) {
+            init(key, length, c, d);
         };
 
         ~SipHash() {};
@@ -147,7 +170,7 @@ namespace siphash_hpp {
                           "SipHash key must be at least 16 bytes");
 
             static_size_checker<T>::check();
-            runtime_size_checker<T>::check(key);
+            runtime_size_checker<T>::check(key, 0);
 
             const uint64_t k0 = read8(key);
             const uint64_t k1 = read8(key, 8);
@@ -160,6 +183,37 @@ namespace siphash_hpp {
             index = 0;
             input_len = 0;
             m = 0;
+        }
+
+        inline void init(
+                const char *key,
+                size_t length,
+                const size_t c = 2,
+                const size_t d = 4) noexcept {
+            this->c = c;
+            this->d = d;
+
+            runtime_size_checker<const char*>::check(key, length);
+
+            const uint64_t k0 = read8(key);
+            const uint64_t k1 = read8(key, 8);
+
+            v0 = (0x736f6d6570736575 ^ k0);
+            v1 = (0x646f72616e646f6d ^ k1);
+            v2 = (0x6c7967656e657261 ^ k0);
+            v3 = (0x7465646279746573 ^ k1);
+
+            index = 0;
+            input_len = 0;
+            m = 0;
+        }
+
+        inline void init(
+                const uint8_t *key,
+                size_t length,
+                const size_t c = 2,
+                const size_t d = 4) noexcept {
+            init(reinterpret_cast<const char*>(key), length, c, d);
         }
 
         SipHash& update(const char byte) noexcept {
