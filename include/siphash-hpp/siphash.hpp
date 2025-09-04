@@ -100,7 +100,7 @@ namespace siphash_hpp {
             m = 0;
         }
 
-        SipHash* update(const char byte) noexcept {
+        SipHash& update(const char byte) noexcept {
             ++input_len;
             m |= (((uint64_t) byte & 0xff) << (index++ * 8));
             if (index >= 8) {
@@ -108,10 +108,10 @@ namespace siphash_hpp {
                 index = 0;
                 m = 0;
             }
-            return this;
+            return *this;
         };
 
-        inline SipHash* update(const char* data, const size_t length) noexcept {
+        inline SipHash& update(const char* data, const size_t length) noexcept {
             size_t i = 0;
 
             // If there is data left in the internal buffer, fill it first
@@ -144,10 +144,10 @@ namespace siphash_hpp {
                       << (index++ * 8));
             }
 
-            return this;
+            return *this;
         }
 
-        inline SipHash* update(const std::string &data) noexcept {
+        inline SipHash& update(const std::string &data) noexcept {
             return update(data.data(), data.size());
         }
 
