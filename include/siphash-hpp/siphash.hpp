@@ -8,15 +8,57 @@
 #include <string>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 
 namespace siphash_hpp {
+
+    template<typename...>
+    using void_t = void;
 
     template<typename T, typename = void>
     struct has_static_size : std::false_type {};
 
     template<typename T>
-    struct has_static_size<T, std::void_t<decltype(std::tuple_size<T>::value)>>
+    struct has_static_size<T, void_t<decltype(std::tuple_size<T>::value)>>
             : std::true_type {};
+
+    template<typename T, typename = void>
+    struct has_size_method : std::false_type {};
+
+    template<typename T>
+    struct has_size_method<T, void_t<decltype(std::declval<T>().size())>>
+            : std::true_type {};
+
+    template<typename T, bool = has_static_size<T>::value>
+    struct static_size_checker;
+
+    template<typename T>
+    struct static_size_checker<T, true> {
+        static void check() {
+            static_assert(sizeof(typename T::value_type) * std::tuple_size<T>::value >= 16,
+                          "SipHash key must be at least 16 bytes");
+        }
+    };
+
+    template<typename T>
+    struct static_size_checker<T, false> {
+        static void check() {}
+    };
+
+    template<typename T, bool = has_size_method<T>::value>
+    struct runtime_size_checker;
+
+    template<typename T>
+    struct runtime_size_checker<T, true> {
+        static void check(const T &key) {
+            assert(key.size() >= 16 && "SipHash key must be at least 16 bytes");
+        }
+    };
+
+    template<typename T>
+    struct runtime_size_checker<T, false> {
+        static void check(const T &) {}
+    };
 
     class SipHash {
     private:
@@ -98,14 +140,11 @@ namespace siphash_hpp {
             this->c = c;
             this->d = d;
 
-            if constexpr (std::is_array_v<T>) {
-                static_assert(sizeof(T) >= 16, "SipHash key must be at least 16 bytes");
-            } else if constexpr (has_static_size<T>::value) {
-                static_assert(sizeof(typename T::value_type) * std::tuple_size<T>::value >= 16,
-                              "SipHash key must be at least 16 bytes");
-            } else {
-                assert(key.size() >= 16 && "SipHash key must be at least 16 bytes");
-            }
+            static_assert(!std::is_array<T>::value || sizeof(T) >= 16,
+                          "SipHash key must be at least 16 bytes");
+
+            static_size_checker<T>::check();
+            runtime_size_checker<T>::check(key);
 
             const uint64_t k0 = read8(key);
             const uint64_t k1 = read8(key, 8);
