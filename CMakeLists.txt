@@ -8,6 +8,7 @@ add_library(siphash_hpp INTERFACE)
 target_include_directories(siphash_hpp INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/siphash-hpp>
     $<INSTALL_INTERFACE:include/siphash-hpp>)
+target_compile_features(siphash_hpp INTERFACE cxx_std_11)
 
 include(CMakePackageConfigHelpers)
 
