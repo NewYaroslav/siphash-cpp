@@ -5,6 +5,16 @@
 
 [SipHash](https://en.wikipedia.org/wiki/SipHash) header only C ++ library.
 
+SipHash is a family of keyed hash functions optimized for short messages. It is widely used to protect hash tables from collision attacks and to authenticate lightweight data.
+
+### Advantages
+- Secret key makes hash-flooding attacks impractical
+- Small, simple code that runs quickly on short inputs
+
+### Limitations
+- Slower than non-cryptographic hashes such as MurmurHash
+- 64-bit output is not meant for high-security message authentication or large files
+
 The key must contain at least 16 bytes.
 
 Example:
@@ -26,7 +36,9 @@ siphash.init(key, 2, 4);
 std::cout << "SipHash-2-4 for 'hello': " << siphash.update(data).digest() << std::endl;
 ```
 
-## vcpkg
+## Installation
+
+### vcpkg
 
 This library can be installed with [vcpkg](https://github.com/microsoft/vcpkg):
 
@@ -45,6 +57,19 @@ To verify the build with vcpkg, run:
 
 ```sh
 VCPKG_ROOT=/path/to/vcpkg ./scripts/run_tests.sh
+```
+
+### Git submodule
+
+```sh
+git submodule add https://github.com/NewYaroslav/siphash-cpp.git external/siphash-cpp
+```
+
+Then add the subdirectory and link the target in your `CMakeLists.txt`:
+
+```cmake
+add_subdirectory(external/siphash-cpp)
+target_link_libraries(your_app PRIVATE siphash_cpp::siphash_cpp)
 ```
 
 
