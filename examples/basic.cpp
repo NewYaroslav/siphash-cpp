@@ -17,8 +17,7 @@ int main() {
     // Using the SipHash class for custom parameters.
     siphash_hpp::SipHash hasher;
     hasher.init(key, 4, 8); // c = 4, d = 8
-    hasher.update(msg);
-    const uint64_t hash_4_8 = hasher.digest();
+    const uint64_t hash_4_8 = hasher.update(msg).digest();
     std::cout << "SipHash-4-8(\"" << msg << "\") = " << hash_4_8 << std::endl;
 
     return 0;

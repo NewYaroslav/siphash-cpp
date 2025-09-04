@@ -21,8 +21,7 @@ std::cout << "SipHash-4-8 for 'hello': " << siphash_hpp::siphash(data, key, 4, 8
 
 siphash_hpp::SipHash siphash;
 siphash.init(key, 2, 4);
-siphash.update(data);
-std::cout << "SipHash-2-4 for 'hello': " << siphash.digest() << std::endl;
+std::cout << "SipHash-2-4 for 'hello': " << siphash.update(data).digest() << std::endl;
 ```
 
 
