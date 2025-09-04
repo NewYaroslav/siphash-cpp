@@ -66,13 +66,16 @@ namespace siphash_hpp {
 		uint64_t v0, v1, v2, v3, m;
 		uint8_t input_len;
 
-		template<class T>
-		inline const uint64_t read8(const T &p, const size_t o = 0) noexcept {
-            return (((uint64_t)((p)[0 + o])) | ((uint64_t)((p)[1 + o]) << 8) |
-           ((uint64_t)((p)[2 + o]) << 16) | ((uint64_t)((p)[3 + o]) << 24) |
-           ((uint64_t)((p)[4 + o]) << 32) | ((uint64_t)((p)[5 + o]) << 40) |
-           ((uint64_t)((p)[6 + o]) << 48) | ((uint64_t)((p)[7 + o]) << 56));
-		}
+                template<class T>
+                inline const uint64_t read8(const T &p, const size_t o = 0) noexcept {
+                    uint64_t result = 0;
+                    for (size_t i = 0; i < 8; ++i) {
+                        result |= static_cast<uint64_t>(
+                                      static_cast<uint8_t>(p[i + o]))
+                                  << (8 * i);
+                    }
+                    return result;
+                }
 
         inline uint64_t rotate_left(
                 const uint64_t val,
