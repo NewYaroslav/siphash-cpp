@@ -26,6 +26,27 @@ siphash.init(key, 2, 4);
 std::cout << "SipHash-2-4 for 'hello': " << siphash.update(data).digest() << std::endl;
 ```
 
+## vcpkg
+
+This library can be installed with [vcpkg](https://github.com/microsoft/vcpkg):
+
+```sh
+vcpkg install siphash-cpp
+```
+
+After installation, a CMake project may use:
+
+```cmake
+find_package(siphash_cpp CONFIG REQUIRED)
+target_link_libraries(your_app PRIVATE siphash_cpp::siphash_cpp)
+```
+
+To verify the build with vcpkg, run:
+
+```sh
+VCPKG_ROOT=/path/to/vcpkg ./scripts/run_tests.sh
+```
+
 
 
 
