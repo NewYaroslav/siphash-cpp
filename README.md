@@ -1,7 +1,7 @@
 # siphash_cpp
 
-[![Linux](https://github.com/NewYaroslav/siphash_cpp/actions/workflows/CI-Linux.yml/badge.svg)](https://github.com/NewYaroslav/siphash_cpp/actions/workflows/CI-Linux.yml)
-[![Win](https://github.com/NewYaroslav/siphash_cpp/actions/workflows/CI-Win.yml/badge.svg)](https://github.com/NewYaroslav/siphash_cpp/actions/workflows/CI-Win.yml)
+[![Linux](https://github.com/NewYaroslav/siphash-cpp/actions/workflows/CI-Linux.yml/badge.svg)](https://github.com/NewYaroslav/siphash-cpp/actions/workflows/CI-Linux.yml)
+[![Win](https://github.com/NewYaroslav/siphash-cpp/actions/workflows/CI-Win.yml/badge.svg)](https://github.com/NewYaroslav/siphash-cpp/actions/workflows/CI-Win.yml)
 
 [SipHash](https://en.wikipedia.org/wiki/SipHash) header only C ++ library.
 
