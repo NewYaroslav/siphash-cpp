@@ -211,9 +211,7 @@ namespace siphash_hpp {
         }
 
         const uint64_t digest() noexcept {
-            while (index < 7) {
-                m |= 0 << (index++ * 8);
-            }
+            while (index < 7) ++index;
             m |= ((uint64_t) input_len) << (index * 8);
             digest_block();
             v2 ^= 0xff;
