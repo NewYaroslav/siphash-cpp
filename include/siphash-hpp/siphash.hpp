@@ -2,10 +2,21 @@
 #ifndef __SIPHASH_HPP_INCLUDED__
 #define __SIPHASH_HPP_INCLUDED__
 
-#include <string>
+#include <array>
+#include <cassert>
 #include <cstdint>
+#include <string>
+#include <tuple>
+#include <type_traits>
 
 namespace siphash_hpp {
+
+    template<typename T, typename = void>
+    struct has_static_size : std::false_type {};
+
+    template<typename T>
+    struct has_static_size<T, std::void_t<decltype(std::tuple_size<T>::value)>>
+            : std::true_type {};
 
     class SipHash {
     private:
@@ -60,7 +71,7 @@ namespace siphash_hpp {
          * SipHash-2-4 for best performance
          * SipHash-4-8 for conservative security
          * Siphash-1-3 for performance at the risk of yet-unknown DoS attacks
-         * \param key   128-bit secret key
+         * \param key   128-bit secret key (must be at least 16 bytes)
          * \param c     Number of rounds per message block
          * \param d     Number of finalization rounds
          */
@@ -75,7 +86,7 @@ namespace siphash_hpp {
          * SipHash-2-4 for best performance
          * SipHash-4-8 for conservative security
          * Siphash-1-3 for performance at the risk of yet-unknown DoS attacks
-         * \param key   128-bit secret key
+         * \param key   128-bit secret key (must be at least 16 bytes)
          * \param c     Number of rounds per message block
          * \param d     Number of finalization rounds
          */
@@ -86,6 +97,15 @@ namespace siphash_hpp {
                 const size_t d = 4) noexcept {
             this->c = c;
             this->d = d;
+
+            if constexpr (std::is_array_v<T>) {
+                static_assert(sizeof(T) >= 16, "SipHash key must be at least 16 bytes");
+            } else if constexpr (has_static_size<T>::value) {
+                static_assert(sizeof(typename T::value_type) * std::tuple_size<T>::value >= 16,
+                              "SipHash key must be at least 16 bytes");
+            } else {
+                assert(key.size() >= 16 && "SipHash key must be at least 16 bytes");
+            }
 
             const uint64_t k0 = read8(key);
             const uint64_t k1 = read8(key, 8);
