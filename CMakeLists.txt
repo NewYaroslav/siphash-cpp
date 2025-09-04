@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(siphash-hpp VERSION 1.0 LANGUAGES CXX)
 
 option(BUILD_TESTING "Build tests" ON)
+option(BUILD_EXAMPLES "Build examples" OFF)
 
 add_library(siphash_hpp INTERFACE)
 target_include_directories(siphash_hpp INTERFACE
@@ -32,6 +33,11 @@ install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/siphash-hpp-config.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/siphash-hpp-config-version.cmake
   DESTINATION lib/cmake/siphash-hpp)
+
+if(BUILD_EXAMPLES)
+  add_executable(siphash_example examples/basic.cpp)
+  target_link_libraries(siphash_example PRIVATE siphash_hpp)
+endif()
 
 if(BUILD_TESTING)
   enable_testing()
