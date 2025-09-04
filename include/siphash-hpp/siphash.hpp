@@ -11,23 +11,27 @@
 #include <type_traits>
 #include <utility>
 
-namespace siphash_hpp {
-
-    template<typename...>
+#if __cplusplus < 201703L
+namespace std {
+    template <class...>
     using void_t = void;
+}
+#endif
+
+namespace siphash_hpp {
 
     template<typename T, typename = void>
     struct has_static_size : std::false_type {};
 
     template<typename T>
-    struct has_static_size<T, void_t<decltype(std::tuple_size<T>::value)>>
+    struct has_static_size<T, std::void_t<decltype(std::tuple_size<T>::value)>>
             : std::true_type {};
 
     template<typename T, typename = void>
     struct has_size_method : std::false_type {};
 
     template<typename T>
-    struct has_size_method<T, void_t<decltype(std::declval<T>().size())>>
+    struct has_size_method<T, std::void_t<decltype(std::declval<T>().size())>>
             : std::true_type {};
 
     template<typename T, bool = has_static_size<T>::value>
@@ -125,7 +129,9 @@ namespace siphash_hpp {
 
     public:
 
-        SipHash() {};
+        SipHash() noexcept
+            : c(0), d(0), index(0), v0(0), v1(0), v2(0), v3(0), m(0),
+              input_len(0) {}
 
         /** \brief Initialize SipHash
          * SipHash-2-4 for best performance
