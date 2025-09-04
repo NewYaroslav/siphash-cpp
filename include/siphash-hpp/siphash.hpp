@@ -5,6 +5,7 @@
 #include <array>
 #include <cassert>
 #include <cstdint>
+#include <cstring>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -64,6 +65,20 @@ namespace siphash_hpp {
         static void check(const T &) {}
     };
 
+    template<typename T, typename = void>
+    struct has_data_method : std::false_type {};
+
+    template<typename T>
+    struct has_data_method<T, std::void_t<decltype(std::declval<T>().data())>>
+            : std::true_type {};
+
+    template<typename T, typename = void>
+    struct has_data_member : std::false_type {};
+
+    template<typename T>
+    struct has_data_member<T, std::void_t<decltype(std::declval<T>().data)>>
+            : std::true_type {};
+
     class SipHash {
     private:
 		size_t c, d, index;
@@ -71,13 +86,59 @@ namespace siphash_hpp {
 		uint8_t input_len;
 
         template<class T>
-        inline const uint64_t read8(const T &p, const size_t o = 0) noexcept {
-            uint64_t result = 0;
-            for (size_t i = 0; i < 8; ++i) {
-                result |= static_cast<uint64_t>(
-                    static_cast<uint8_t>(p[i + o]))
-                        << (8 * i);
-            }
+        static inline const uint8_t* data_ptr(
+                const T &p,
+                const size_t o,
+                typename std::enable_if<
+                        std::is_pointer<T>::value || std::is_array<T>::value
+                >::type* = 0) {
+            return reinterpret_cast<const uint8_t*>(p) + o;
+        }
+
+        template<class T>
+        static inline const uint8_t* data_ptr(
+                const T &p,
+                const size_t o,
+                typename std::enable_if<
+                        !std::is_pointer<T>::value &&
+                        !std::is_array<T>::value &&
+                        has_data_method<T>::value
+                >::type* = 0) {
+            return reinterpret_cast<const uint8_t*>(p.data()) + o;
+        }
+
+        template<class T>
+        static inline const uint8_t* data_ptr(
+                const T &p,
+                const size_t o,
+                typename std::enable_if<
+                        !std::is_pointer<T>::value &&
+                        !std::is_array<T>::value &&
+                        !has_data_method<T>::value &&
+                        has_data_member<T>::value
+                >::type* = 0) {
+            return reinterpret_cast<const uint8_t*>(p.data) + o;
+        }
+
+        template<class T>
+        static inline const uint8_t* data_ptr(
+                const T &,
+                const size_t,
+                typename std::enable_if<
+                        !std::is_pointer<T>::value &&
+                        !std::is_array<T>::value &&
+                        !has_data_method<T>::value &&
+                        !has_data_member<T>::value
+                >::type* = 0) {
+            static_assert(sizeof(T) == 0, "Unsupported type for read8");
+            return 0;
+        }
+
+        template<class T>
+        static inline const uint64_t read8(const T &p, const size_t o = 0) noexcept {
+            uint64_t result;
+            const uint8_t* ptr = data_ptr(p, o);
+            std::memcpy(&result, ptr, sizeof(result));
             return result;
         }
 
