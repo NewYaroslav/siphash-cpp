@@ -24,7 +24,7 @@ namespace std {
 }
 #endif
 
-namespace siphash_hpp {
+namespace siphash_cpp {
 
     template<typename T, typename = void>
     struct has_static_size : std::false_type {};
