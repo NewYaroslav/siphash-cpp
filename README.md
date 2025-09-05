@@ -72,8 +72,8 @@ add_subdirectory(external/siphash-cpp)
 target_link_libraries(your_app PRIVATE siphash_cpp::siphash_cpp)
 ```
 
+## Related Projects
 
-
-
-
+- [hmac-cpp](https://github.com/NewYaroslav/hmac-cpp)
+- [aes-cpp](https://github.com/NewYaroslav/aes-cpp)
 
